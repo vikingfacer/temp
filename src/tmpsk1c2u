@@ -1,0 +1,35 @@
+const SLAVE_ADDR: u16 = 0x04;
+
+extern crate spidev;
+use std::io::Write;
+use std::io::Read;
+use spidev::{Spidev, SpidevOptions, SPI_MODE_0};
+use spidev::spidevioctl::SpidevTransfer;
+use std::io;
+use std:
+
+fn create_spi() -> io::Result<Spidev>{
+	let mut spidev = Spidev::open("/dev/spidev0.0").unwrap();
+    let options = SpidevOptions::new()
+                      .bits_per_word(8)
+                      .max_speed_hz(5000)
+                      .lsb_first(false)
+                      .mode(SPI_MODE_0)
+                      .build();
+
+    spidev.configure(&options);
+    Ok(spidev)
+}
+
+fn main() {
+    println!("Hello, world!");
+    let mut spidev = create_spi().unwrap();
+    loop {
+    	let mut r_buf = [0_u8; 10];
+		// let mut trans = SpidevTransfer::write( &buf[..]);
+		println!("{:?}", spidev.transfer(&mut SpidevTransfer::write("d 24 w 1 \n".as_bytes())));
+		spidev.write("d 24 w 1 \n".as_bytes());
+		spidev.read(&mut r_buf);
+		println!("{:?}", str::from_utf8(vec!(r_buf)));
+    }
+}

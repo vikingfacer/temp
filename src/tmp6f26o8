@@ -1,0 +1,61 @@
+const SLAVE_ADDR: u16 = 0x04;
+
+extern crate spidev;
+use std::io::Write;
+use std::io::Read;
+use spidev::{Spidev, SpidevOptions, SPI_MODE_0};
+use spidev::spidevioctl::SpidevTransfer;
+use std::io;
+use std::str;
+use std::thread;
+use std::time::Duration;
+	
+
+fn create_spi() -> io::Result<Spidev>{
+	let mut spidev = Spidev::open("/dev/spidev0.0").unwrap();
+    let options = SpidevOptions::new()
+                      .bits_per_word(8)
+                      .max_speed_hz(5000)
+                      .lsb_first(false)
+                      .mode(SPI_MODE_0)
+                      .build();
+
+    spidev.configure(&options).unwrap();
+    Ok(spidev)
+}
+
+fn main() {
+
+    let mut spidev = create_spi().unwrap();
+    let mut _read_buf = Vec::<u8>::new();
+
+    loop {
+
+    	let mut r_buf = [0_u8];
+
+		println!("writing d 24 w 1");
+		spidev.write("d 24 w 1 \n".as_bytes()).unwrap();
+		
+		println!("waiting");
+		thread::sleep(Duration::from_millis(20));
+		
+		println!("reading");
+		spidev.read(&mut r_buf).unwrap();
+
+		while r_buf[0] as char != '\0' {
+
+			spidev.read(&mut r_buf).unwrap();
+			if r_buf[0] as char != '\0' o{
+				_read_buf.push(r_buf[0]);
+			}
+		// r_buf[0] = 0;
+
+		}
+
+
+		println!("{:?}", str::from_utf8(&r_buf));
+		println!("{:?}", String::from_utf8(_read_buf.clone()));
+		thread::sleep(Duration::from_millis(100));
+		_read_buf.clear();
+    }
+}

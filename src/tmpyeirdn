@@ -1,0 +1,114 @@
+
+
+
+#[macro_use] 
+extern crate log;
+extern crate simplelog;
+use simplelog::*;
+use std::fs::File;
+
+extern crate spidev;
+use std::io::Write;
+use std::io::Read;
+use spidev::{Spidev, SpidevOptions, SPI_MODE_0};
+use spidev::spidevioctl::SpidevTransfer;
+use std::io;
+use std::str;
+use std::thread;
+use std::time::Duration;
+    
+pub mod ll_io {
+    // add code here
+use spidev::{Spidev, SpidevOptions, SPI_MODE_0};
+use spidev::spidevioctl::SpidevTransfer;
+
+
+    pub struct Spi {
+        dev: Spidev,
+        logging : bool
+    }
+
+    impl Spi {
+            pub fn new(_logging : bool) -> Spi{
+                let mut spidev = Spidev::open("/dev/spidev0.0").unwrap();
+                let options = SpidevOptions::new()
+                                  .bits_per_word(8)
+                                  .max_speed_hz(5000)
+                                  .lsb_first(false)
+                                  .mode(SPI_MODE_0)
+                                  .build();
+
+                spidev.configure(&options).unwrap();
+                Spi{ dev: spidev,
+                    logging : _logging}
+            }
+
+
+        pub fn spi_write_respond(&self, _payload : &[u8]) -> String
+        {
+
+            let mut rx_buf : Vec<u8> = Vec::with_capacity(_payload.len());
+
+            for i in 0.._payload.len() {
+                rx_buf.
+            }
+
+            println!("{:?}",rx_buf );
+            let mut transfer = SpidevTransfer::read_write(&_payload, &mut rx_buf[..]);
+            
+            let response = self.dev.transfer(&mut transfer);
+
+            match response {
+                Ok(_) => {match String::from_utf8(rx_buf){
+                    Ok(n) => return n,
+                    Err(e) => {if self.logging {error!("String failed to be created {:?}", e)}
+                        return String::new();}
+                    }
+                },
+                Err(e) => {
+                        if self.logging { error!("transfer Failed {:?}", e)};
+                        return String::new();
+                },
+            }
+
+        }
+    }
+}
+fn main() {
+
+        CombinedLogger::init(
+        vec![
+            TermLogger::new(LevelFilter::Warn, Config::default()).unwrap(),
+            WriteLogger::new(LevelFilter::Info, Config::default(), File::create("my_rust_binary.log").unwrap()),
+        ]
+    ).unwrap();
+
+    let _s_dev = ll_io::Spi::new(true);
+    let tx_buf = "d 24 w 1 \n".as_bytes();
+
+    println!("{:?}",_s_dev.spi_write_respond(tx_buf));
+
+
+    // let spidev = create_spi().unwrap();
+    // let mut _read_buf = Vec::<u8>::new();
+
+    // loop {
+    //     let mut rx_buf = [0_u8 ; 10];
+    //     let tx_buf = "d 24 w 1 \n".as_bytes();
+    //     println!("writing d 24 w 1");
+    //     // spidev.write("d 24 w 1 \n".as_bytes()).unwrap();
+    //     println!("waiting");
+    //     thread::sleep(Duration::from_millis(20));
+    //     println!("reading");
+    //     // spidev.read(&mut r_buf).unwrap();
+    //     let mut transfer = SpidevTransfer::read_write(&tx_buf, &mut rx_buf);
+    //     spidev.transfer(&mut transfer).unwrap();
+    //     // match spidev.transfer(&mut transfer) {
+    //     //  Err(e) => error!("transfer Failed {:?}", e),
+    //     //  _ => continue,
+    //     // };
+    //     println!("here {:?}", str::from_utf8(&rx_buf));
+    //     thread::sleep(Duration::from_millis(10));
+    //     _read_buf.clear();
+    // }
+}

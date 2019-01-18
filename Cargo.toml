@@ -1,0 +1,11 @@
+[package]
+name = "testcomm"
+version = "0.1.0"
+authors = ["vikingfacer <jacobmontpetit@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+log = { version = "0.4.1", features = ["std"] }
+spidev = "0.3.0"
+simplelog = "^0.5.0"
+i2cdev = "0.3.1"
