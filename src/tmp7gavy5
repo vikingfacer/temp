@@ -61,7 +61,7 @@ pub mod ll_io {
 
             let mut rx_buf : Vec<u8> = Vec::with_capacity(_payload.len());
 
-            for _i in 0..wx_buf.len() {
+            for _i in 0..w.len() {
                 rx_buf.push('\0' as u8);
             }
 

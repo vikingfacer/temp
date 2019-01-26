@@ -61,7 +61,7 @@ pub mod ll_io {
 
             let mut rx_buf : Vec<u8> = Vec::with_capacity(_payload.len());
 
-            for _i in 0..wx_buf.len() {
+            for _i in 0.._payload.len() {
                 rx_buf.push('\0' as u8);
             }
 
@@ -73,7 +73,7 @@ pub mod ll_io {
 
             // need to remove the first item the arduino need to push 1 junk byte to read message
             // therefore 1 byte is scarificed 
-            rx_buf.remove(0);
+            rx_buf.remove_i
 
             match response {
                 Ok(_) => {match String::from_utf8(rx_buf){

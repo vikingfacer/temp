@@ -30,6 +30,7 @@ pub mod ll_io {
 
     use std::thread;
     use std::time::Duration;
+
     
     pub struct Spi {
         dev: Spidev,
@@ -55,25 +56,15 @@ pub mod ll_io {
         pub fn write_respond(&self, _payload : &[u8]) -> String
         {
                 // it will probobalby be worth it to some timing tests for wait on the transfer
-            let mut wx_buf : Vec<u8> = Vec::from(_payload);
-
-            wx_buf.push(0); // need to add an extra bit for the transaction 
-
             let mut rx_buf : Vec<u8> = Vec::with_capacity(_payload.len());
 
-            for _i in 0..wx_buf.len() {
+            for _i in 0.._payload.len() {
                 rx_buf.push('\0' as u8);
             }
 
-
-            let mut transfer = SpidevTransfer::read_write(&wx_buf, &mut rx_buf);
+            let mut transfer = SpidevTransfer::read_write(&[ *_payload, [ 0 as u8 ].as].concat(), &mut rx_buf);
             
             let response = self.dev.transfer(&mut transfer);
-
-
-            // need to remove the first item the arduino need to push 1 junk byte to read message
-            // therefore 1 byte is scarificed 
-            rx_buf.remove(0);
 
             match response {
                 Ok(_) => {match String::from_utf8(rx_buf){
