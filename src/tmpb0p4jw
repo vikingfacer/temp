@@ -28,10 +28,8 @@ pub mod ll_io {
     use i2cdev::core::*;
     use i2cdev::linux::{LinuxI2CDevice, LinuxI2CError};
 
-    use std::thread;
-    use std::time::Duration;
+    const SLAVE_ADDR: u16 = 0x04;
 
-    
     pub struct Spi {
         dev: Spidev,
         logging : bool
@@ -82,13 +80,14 @@ pub mod ll_io {
         }
     }
 
-    pub struct ItwoC {
+    struct ItwoC {
         dev : LinuxI2CDevice,
         logging : bool,
         register : u16
     }
     impl ItwoC {
         pub fn new(_logging : bool, r : u16) -> ItwoC{
+
 
             let dev_h = LinuxI2CDevice::new("/dev/i2c-1", r).unwrap();
         
@@ -109,18 +108,13 @@ pub mod ll_io {
                     Err(e) =>{ if self.logging { error!("i2c single byte write Failed {:?} {} {}", e, file!(), line!())}},
                     _ => {}
                 }
-                // thread::sleep(Duration::from_millis(10));
-
             }
-            println!("{:?}",rx_buf );
-            for mut _i in &mut rx_buf {
+
+            for mut _i in &rx_buf {
                 match self.dev.smbus_read_byte() {
-                    Ok(b) => {*_i = b;
-                            println!("{:?}", b);},
+                    Ok(b) => _i = &b,
                     Err(e) => if self.logging { error!("i2c single byte read Failed {:?} {} {}", e, file!(), line!())}
                 }
-                // thread::sleep(Duration::from_millis(100));
-
             }
 
             match String::from_utf8(rx_buf) {
@@ -144,8 +138,7 @@ fn main() {
 
     let _s_dev = ll_io::Spi::new(true);
 
-    let _i_dev = ll_io::ItwoC::new(true,8);
+    let _i_dev = ll_io
+    // println!("{:?}",_s_dev.spi_write_respond(tx_buf));
 
-    println!("{:?}", _i_dev.write_respond("h\n".as_bytes()));
 
-}

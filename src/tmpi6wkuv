@@ -109,17 +109,17 @@ pub mod ll_io {
                     Err(e) =>{ if self.logging { error!("i2c single byte write Failed {:?} {} {}", e, file!(), line!())}},
                     _ => {}
                 }
-                // thread::sleep(Duration::from_millis(10));
+                thread::sleep(Duration::from_millis(10));
 
             }
-            println!("{:?}",rx_buf );
+            p
             for mut _i in &mut rx_buf {
                 match self.dev.smbus_read_byte() {
                     Ok(b) => {*_i = b;
                             println!("{:?}", b);},
                     Err(e) => if self.logging { error!("i2c single byte read Failed {:?} {} {}", e, file!(), line!())}
                 }
-                // thread::sleep(Duration::from_millis(100));
+                thread::sleep(Duration::from_millis(100));
 
             }
 
@@ -146,6 +146,6 @@ fn main() {
 
     let _i_dev = ll_io::ItwoC::new(true,8);
 
-    println!("{:?}", _i_dev.write_respond("h\n".as_bytes()));
+    println!("{:?}", _i_dev.write_respond("hello you!\n\n".as_bytes()));
 
 }
