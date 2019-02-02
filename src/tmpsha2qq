@@ -1,0 +1,127 @@
+
+
+pub mod ll_io {
+    // add code here
+
+    use spidev::{Spidev, SpidevOptions, SPI_MODE_0};
+    use spidev::spidevioctl::SpidevTransfer;
+
+
+    extern crate i2cdev;
+    use i2cdev::core::*;
+    use i2cdev::linux::{LinuxI2CDevice};
+
+
+
+    
+    pub struct Spi {
+        dev: Spidev,
+        logging : bool
+    }
+
+    impl Spi {
+        pub fn new(_logging : bool) -> Spi{
+            let mut spidev = Spidev::open("/dev/spidev0.0").unwrap();
+            let options = SpidevOptions::new()
+                              .bits_per_word(8)
+                              .max_speed_hz(5000)
+                              .lsb_first(false)
+                              .mode(SPI_MODE_0)
+                              .build();
+
+            spidev.configure(&options).unwrap();
+            Spi{ dev: spidev,
+                logging : _logging}
+        }
+
+        pub fn write_respond(&self, _payload : &[u8]) -> String
+        {
+                // it will probobalby be worth it to some timing tests for wait on the transfer
+            let mut wx_buf : Vec<u8> = Vec::from(_payload);
+
+            // add stop bit 
+            wx_buf.push(self.stop_b)
+
+            wx_buf.push(0); // need to add an extra bit for the transaction 
+
+            let mut rx_buf : Vec<u8> = Vec::with_capacity(_payload.len());
+
+            for _i in 0..wx_buf.len() {
+                rx_buf.push('\0' as u8);
+            }
+
+
+            let mut transfer = SpidevTransfer::read_write(&wx_buf, &mut rx_buf);
+            
+            let response = self.dev.transfer(&mut transfer);
+
+
+            // need to remove the first item the arduino need to push 1 junk byte to read message
+            // therefore 1 byte is scarificed 
+            rx_buf.remove(0);
+
+            match response {
+                Ok(_) => {match String::from_utf8(rx_buf){
+                    Ok(n) => return n,
+                    Err(e) => {if self.logging {error!("String failed to be created {:?} {} {}", e, file!(), line!())}
+                        return String::new();}
+                    }
+                },
+                Err(e) => {
+                        if self.logging { error!("transfer Failed {:?} {} {}", e, file!(), line!())};
+                        return String::new();
+                },
+            }
+
+        }
+    }
+
+/// ItwoC is a wrapper struct for the I2c dev in linux 
+/// it wraps all the functionality need for alexa JOnes
+/// the call and response 
+
+    pub struct ItwoC {
+        dev : LinuxI2CDevice,
+        logging : bool,
+        register : u16
+    }
+
+    impl ItwoC {
+        pub fn new(_logging : bool, r : u16) -> ItwoC{
+
+            let dev_h = LinuxI2CDevice::new("/dev/i2c-1", r).unwrap();
+        
+            ItwoC{
+                dev : dev_h,
+                logging : _logging,
+                register : r
+            }
+        }
+
+        pub fn write_respond(mut self,  _payload : &[u8]) -> String
+        {
+
+            let mut rx_buf : Vec<u8> = Vec::with_capacity(_payload.len());
+
+            for _i in _payload {
+                rx_buf.push('\0' as u8);
+            }
+
+            match self.dev.write(_payload) {
+                Ok(_) => {},
+                Err(e) => if self.logging { error!("i2c write Failed {:?} {} {}", e, file!(), line!())}
+            }
+
+            match self.dev.read(&mut rx_buf){
+                Ok(_)=>{},
+                Err(e) =>if self.logging { error!("i2c read Failed {:?} {} {}", e, file!(), line!())}
+            }
+
+            match String::from_utf8(rx_buf) {
+                Ok(data) => data,
+                Err(e) =>  {if self.logging {error!("String failed to be created {:?} {} {}", e, file!(), line!())}
+                        return String::new();}
+            }
+        }
+    }
+}

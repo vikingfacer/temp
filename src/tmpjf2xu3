@@ -1,0 +1,108 @@
+
+#![feature(untagged_unions)]
+
+use crate::messages::*;
+use crate::
+use std::mem::size_of;
+
+
+
+mod messages {
+    use std::mem::size_of;
+    #[derive(Debug, Copy)]
+    #[repr(C)]
+
+    pub struct Digital {
+        pub id : u16,
+        pub pin : u16,
+        pub rw : u8,
+        pub action : u8
+    }
+
+    #[derive(Debug, Copy)]
+    #[repr(C)]
+    pub struct Analog {
+        pub id : u16,
+        pub pin : u16,
+        pub rw : u8,
+        pub action : u16
+    }
+
+    #[derive(Debug, Copy)]
+    #[repr(C)]
+    pub struct Servo {
+        pub id : u16,
+        pub pin : u16,
+        pub rw : u8,
+        pub degree : u8
+    }
+
+
+    impl Clone for Digital {
+        fn clone(&self) -> Digital {*self}
+    }
+
+    impl Clone for Analog {
+        fn clone(&self) -> Analog {*self}
+    }
+
+    impl Clone for Servo {
+        fn clone(&self) -> Servo {*self}
+    }
+
+    #[repr(C)]
+    pub union s_Analog {
+        pub msg : Analog,
+        pub serialized : [u8 ; size_of::<Analog>()]
+    }
+
+    #[repr(C)]
+    pub union s_Digital {
+        pub msg : Digital,
+        pub serialized : [u8 ; size_of::<Digital>()]
+    }
+
+    #[repr(C)]
+    pub union s_Servo {
+        pub msg : Servo,
+        pub serialized : [u8 ; size_of::<Servo>()]
+    }
+}
+
+
+fn main() {
+
+    //     CombinedLogger::init(
+    //     vec![
+    //         TermLogger::new(LevelFilter::Warn, Config::default()).unwrap(),
+    //         WriteLogger::new(LevelFilter::Info, Config::default(), File::create("my_rust_binary.log").unwrap()),
+    //     ]
+    // ).unwrap();
+
+    let _d = Digital{id : 123, pin : 23, rw : 'w' as u8, action : 1  };
+    let _sd= s_Digital{msg : _d.clone()};
+
+    let _a = Analog{id : 123, pin : 23, rw : 'w' as u8, action : 1234 };
+    let _sa= s_Analog{msg : _a.clone()};
+
+    let _s = Servo{id : 123, pin : 23, rw : 'w' as u8, degree : 124 };
+    let _ss= s_Servo{msg : _s.clone()};
+
+    println!("{:?}", _d);
+    println!("{:?}",size_of::<Digital>() );
+    println!("{:?}", unsafe {_sd.serialized });
+    println!("{:?}", unsafe {_sd.msg });
+    println!("{:?}",size_of::<s_Digital>());
+
+    println!("{:?}", _a);
+    println!("{:?}",size_of::<Analog>() );
+    println!("{:?}", unsafe {_sa.serialized });
+    println!("{:?}", unsafe {_sa.msg });
+    println!("{:?}",size_of::<s_Analog>());
+
+    println!("{:?}", _s);
+    println!("{:?}",size_of::<Servo>() );
+    println!("{:?}", unsafe {_ss.serialized });
+    println!("{:?}", unsafe {_ss.msg });
+    println!("{:?}",size_of::<s_Servo>());
+}

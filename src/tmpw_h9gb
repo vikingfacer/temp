@@ -1,0 +1,30 @@
+
+#[macro_use] 
+extern crate log;
+extern crate simplelog;    
+use simplelog::*;
+use std::fs::File;    
+use l
+
+fn main() {
+
+        CombinedLogger::init(
+        vec![
+            TermLogger::new(LevelFilter::Warn, Config::default()).unwrap(),
+            WriteLogger::new(LevelFilter::Info, Config::default(), File::create("my_rust_binary.log").unwrap()),
+        ]
+    ).unwrap();
+
+    let _s_dev = ll_io::Spi::new(true);
+    println!("from spi {:?}", _s_dev.write_respond("hello you \n".as_bytes()));
+
+
+    let _i_dev = ll_io::ItwoC::new(true,8);
+    println!("from i2c {:?}",  _i_dev.write_respond("hello you \n".as_bytes()));
+
+
+
+
+
+
+}

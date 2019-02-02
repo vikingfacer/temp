@@ -1,0 +1,84 @@
+
+#![feature(untagged_unions)]
+use std::mem::size_of;
+
+#[derive(Debug, Copy)]
+#[repr(C)]
+struct Digital {
+    id : u16,
+    pin : u16,
+    rw : u8,
+    action : u8
+}
+
+#[derive(Debug, Copy)]
+#[repr(C)]
+struct Analog {
+    id : u16,
+    pin : u16,
+    rw : u8,
+    action : u16
+}
+
+#[derive(Debug, Copy)]
+#[repr(C)]
+struct Servo {
+    id : u16,
+    pin : u16,
+    rw : u8,
+    Degree : u16
+}
+
+
+impl Clone for Digital {
+    fn clone(&self) -> Digital {*self}
+}
+
+impl Clone for Analog {
+    fn clone(&self) -> Analog {*self}
+}
+
+impl Clone for Servo {
+    fn clone(&self) -> Servo {*self}
+}
+
+#[repr(C)]
+union s_Analog {
+    msg : Analog,
+    serialized : [u8 ; size_of::<Analog>()]
+}
+
+#[repr(C)]
+union s_Digital {
+    msg : Digital,
+    serialized : [u8 ; size_of::<Digital>()]
+}
+
+
+fn main() {
+
+    //     CombinedLogger::init(
+    //     vec![
+    //         TermLogger::new(LevelFilter::Warn, Config::default()).unwrap(),
+    //         WriteLogger::new(LevelFilter::Info, Config::default(), File::create("my_rust_binary.log").unwrap()),
+    //     ]
+    // ).unwrap();
+
+    let _d = Digital{id : 123, pin : 23, rw : 'w' as u8, action : 1  };
+    let _sd= s_Digital{msg : _d.clone()};
+
+    let _a = Analog{id : 123, pin : 23, rw : 'w' as u8, action : 1234 };
+    let _sa= s_Analog{msg : _a.clone()};
+
+    println!("{:?}", _d);
+    println!("{:?}",size_of::<Digital>() );
+    println!("{:?}", unsafe {_sd.serialized });
+    println!("{:?}", unsafe {_sd.msg });
+    println!("{:?}",size_of::<s_Digital>());
+
+    println!("{:?}", _a);
+    println!("{:?}",size_of::<Analog>() );
+    println!("{:?}", unsafe {_sa.serialized });
+    println!("{:?}", unsafe {_sa.msg });
+    println!("{:?}",size_of::<s_Analog>());
+}

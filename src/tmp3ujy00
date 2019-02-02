@@ -1,0 +1,23 @@
+
+#[repr(C)]
+union Dmsg {
+    id : u16,
+    type : u8,
+    rw : u8,
+    A
+}
+
+
+
+fn main() {
+
+    //     CombinedLogger::init(
+    //     vec![
+    //         TermLogger::new(LevelFilter::Warn, Config::default()).unwrap(),
+    //         WriteLogger::new(LevelFilter::Info, Config::default(), File::create("my_rust_binary.log").unwrap()),
+    //     ]
+    // ).unwrap();
+
+
+
+}

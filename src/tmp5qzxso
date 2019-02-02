@@ -23,7 +23,7 @@ fn main() {
     let _ss= s_Servo{msg : _s.clone()};
 
     let _s_com = ll_io::Spi::new(false, '\n' as u8);
-    let _c_com = ll_io::ItwoC::new(true, '\n' as u8, 0x8);
+    let _c_com = ll_io::ItwoC::new(true, '\n' as u, 0x8);
     println!("{:?}", unsafe{_ss.msg} );
 
     println!("{:?}", unsafe{_ss.serialized} );

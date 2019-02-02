@@ -1,0 +1,33 @@
+use std::mem::size_of;
+
+// #[derive(Debug)]
+#[repr(C)]
+struct Dmsg {
+    id : u16,
+    mtype : char,
+    rw : char,
+    action : u8
+}
+
+#![#![feature(untagged_uni)]]
+#[repr(C)]
+union s_Dmsg {
+    msg : Dmsg,
+    serialized : [u8 ; size_of::<Dmsg>()]
+}
+
+
+fn main() {
+
+    //     CombinedLogger::init(
+    //     vec![
+    //         TermLogger::new(LevelFilter::Warn, Config::default()).unwrap(),
+    //         WriteLogger::new(LevelFilter::Info, Config::default(), File::create("my_rust_binary.log").unwrap()),
+    //     ]
+    // ).unwrap();
+
+    let _d = Dmsg{id : 123, mtype : 'd', rw : 'w', action : 1  };
+    // println!("{:?}",_d );
+    println!("{:?}",size_of::<Dmsg>() );
+
+}

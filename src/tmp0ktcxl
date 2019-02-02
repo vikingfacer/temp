@@ -1,0 +1,25 @@
+
+#[repr(C)]
+struct Dmsg {
+    id : u16,
+    r#type : u8,
+    rw : u8,
+    Action : u8
+}
+
+// #[repr(C)]
+
+
+
+fn main() {
+
+    //     CombinedLogger::init(
+    //     vec![
+    //         TermLogger::new(LevelFilter::Warn, Config::default()).unwrap(),
+    //         WriteLogger::new(LevelFilter::Info, Config::default(), File::create("my_rust_binary.log").unwrap()),
+    //     ]
+    // ).unwrap();
+
+    let d = D
+
+}

@@ -1,0 +1,29 @@
+use std::mem:;
+
+#[derive(Debug)]
+#[repr(C)]
+struct Dmsg {
+    id : u16,
+    mtype : char,
+    rw : char,
+    action : u8
+}
+
+// #[repr(C)]
+
+
+
+fn main() {
+
+    //     CombinedLogger::init(
+    //     vec![
+    //         TermLogger::new(LevelFilter::Warn, Config::default()).unwrap(),
+    //         WriteLogger::new(LevelFilter::Info, Config::default(), File::create("my_rust_binary.log").unwrap()),
+    //     ]
+    // ).unwrap();
+
+    let _d = Dmsg{id : 123, mtype : 'd', rw : 'w', action : 1  };
+    println!("{:?}",_d );
+    println!("{:?}",sizeof(_d) );
+
+}
